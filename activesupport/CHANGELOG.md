@@ -1,3 +1,30 @@
+*   Add `assert_events_reported` test helper for `ActiveSupport::EventReporter`.
+
+    This new assertion allows testing multiple events in a single block, regardless of order:
+
+    ```ruby
+    assert_events_reported([
+      { name: "user.created", payload: { id: 123 } },
+      { name: "email.sent", payload: { to: "user@example.com" } }
+    ]) do
+      create_user_and_send_welcome_email
+    end
+    ```
+
+    *George Ma*
+
+*   Add `ActiveSupport::TimeZone#standard_name` method.
+
+    ``` ruby
+    zone = ActiveSupport::TimeZone['Hawaii']
+    # Old way
+    ActiveSupport::TimeZone::MAPPING[zone.name]
+    # New way
+    zone.standard_name # => 'Pacific/Honolulu'
+    ```
+
+    *Bogdan Gusiev*
+
 *   Add Structured Event Reporter, accessible via `Rails.event`.
 
     The Event Reporter provides a unified interface for producing structured events in Rails
@@ -29,7 +56,7 @@
     ```ruby
     class MySubscriber
       def emit(event)
-        encoded_event = ActiveSupport::EventReporter.encoder(:json).encode(event)
+        encoded_event = ActiveSupport::EventReporter::JSONEncoder.encode(event)
         StructuredLogExporter.export(encoded_event)
       end
     end
